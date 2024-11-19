@@ -10,8 +10,6 @@ API_KEY = os.getenv("API_KEY")
 AUTHORIZED_TELEGRAM_ID = int(os.getenv("AUTHORIZED_TELEGRAM_ID"))
 
 # Decorador para verificar autorización
-# Este decorador verifica que el usuario que ha introducido el comando somos nosotros (haciendo uso de AUTHORIZED_TELEGRAM_ID)
-# para todos los próximos comandos del bot
 def require_authorization(func):
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
         user_id = update.effective_user.id
@@ -21,11 +19,12 @@ def require_authorization(func):
         return await func(update, context, *args, **kwargs)
     return wrapper
 
-# Comandos del bot
+# Comando para saludar al usuario
 @require_authorization
 async def saludo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Hola!")
 
+# Comando para escanear y enviar el PDF
 @require_authorization
 async def scan(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args:
@@ -34,13 +33,21 @@ async def scan(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     domain = context.args[0]
     try:
-        resultados = subprocess.run(
+        # Ejecutar el script de escaneo
+        subprocess.run(
             ["./scan.sh", domain],
-            capture_output=True,
             text=True,
             check=True
         )
-        await update.message.reply_text(resultados.stdout)
+        await update.message.reply_text("Escaneo completado con éxito. Enviando resultados...")
+
+        # Ruta al archivo PDF generado por el escaneo
+        ruta_pdf = "./resultado.pdf"
+
+        # Enviar el archivo PDF
+        with open(ruta_pdf, "rb") as pdf:
+            await update.message.reply_document(document=pdf, filename="resultado.pdf")
+
     except subprocess.CalledProcessError as e:
         await update.message.reply_text(f"Error al ejecutar el escaneo: {e}")
 
