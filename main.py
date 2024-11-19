@@ -42,11 +42,11 @@ async def scan(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text("Escaneo completado con éxito. Enviando resultados...")
 
         # Ruta al archivo PDF generado por el escaneo
-        ruta_pdf = "./resultado.pdf"
+        ruta_pdf = f"./resultado_{domain}.pdf"
 
         # Enviar el archivo PDF
         with open(ruta_pdf, "rb") as pdf:
-            await update.message.reply_document(document=pdf, filename="resultado.pdf")
+            await update.message.reply_document(document=pdf, filename=f"./resultado_{domain}.pdf")
 
     except subprocess.CalledProcessError as e:
         await update.message.reply_text(f"Error al ejecutar el escaneo: {e}")
