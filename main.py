@@ -1,4 +1,4 @@
-faarom dotenv import load_dotenv
+from dotenv import load_dotenv
 import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
